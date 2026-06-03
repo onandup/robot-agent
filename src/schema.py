@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
-
+from typing import List
 
 class ObjectDetection(BaseModel):
     name: str
@@ -30,3 +30,7 @@ class ExecutionResult(BaseModel):
     success: bool
     steps_executed: int
     failure_reason: Optional[str] = None
+
+class ValidationResult(BaseModel):
+    valid: bool
+    errors: List[str]
