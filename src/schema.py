@@ -34,3 +34,15 @@ class ExecutionResult(BaseModel):
 class ValidationResult(BaseModel):
     valid: bool
     errors: List[str]
+
+
+class RunTrace(BaseModel):
+    run_id: str
+    goal: str
+    model_name: str
+    perception_latency_ms: float
+    planning_latency_ms: float
+    execution_latency_ms: float
+    scene: dict
+    plan: dict
+    result: dict

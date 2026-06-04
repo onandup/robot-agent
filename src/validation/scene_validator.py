@@ -1,4 +1,4 @@
-from schema import Scene, ValidationResult
+from src.schema import Scene, ValidationResult
 
 def validate_scene(scene: Scene) -> ValidationResult:
     errors = []

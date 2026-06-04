@@ -1,4 +1,4 @@
-from schema import Scene, Plan, Action
+from src.schema import Scene, Plan, Action
 
 
 def create_plan(goal: str, scene: Scene) -> Plan:

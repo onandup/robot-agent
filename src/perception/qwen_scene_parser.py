@@ -76,8 +76,18 @@ Include only task-relevant objects and major obstacles.
             clean_up_tokenization_spaces=False,
         )[0]
 
+        print("\n===== RAW MODEL OUTPUT =====")
+        print(output_text)
+        print("===== END RAW MODEL OUTPUT =====\n")
+
         json_start = output_text.find("{")
         json_end = output_text.rfind("}") + 1
+        json_blob = output_text[json_start:json_end]
+
+        print("\n===== EXTRACTED JSON BLOB =====")
+        print(json_blob)
+        print("===== END JSON BLOB =====\n")
+
         parsed = json.loads(output_text[json_start:json_end])
 
         return Scene.model_validate(parsed)

@@ -1,4 +1,4 @@
-from schema import (
+from src.schema import (
     Scene,
     Plan,
     ValidationResult

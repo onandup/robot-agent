@@ -1,4 +1,4 @@
-from schema import Scene, Plan, ExecutionResult
+from src.schema import Scene, Plan, ExecutionResult
 
 
 def execute_plan(scene: Scene, plan: Plan) -> ExecutionResult:
