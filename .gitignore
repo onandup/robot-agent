@@ -60,3 +60,14 @@ temp/
 
 # Local images for experimentation
 examples/raw/
+
+# Large image/video assets
+*.mp4
+*.mov
+*.avi
+
+# Large datasets
+data/
+
+# HuggingFace cache
+~/.cache/huggingface/
