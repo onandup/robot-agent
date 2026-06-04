@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Pytest
+.pytest_cache/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# VSCode
+.vscode/
+
+# IntelliJ/PyCharm
+.idea/
+
+# Environment variables
+.env
+.env.*
+
+# Hugging Face
+.cache/
+huggingface/
+
+# Model downloads
+models/
+
+# Generated outputs
+outputs/
+outputs/*
+
+# Evaluation results
+eval_results/
+eval_results/*
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+# Local images for experimentation
+examples/raw/
