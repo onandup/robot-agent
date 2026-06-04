@@ -1,9 +1,11 @@
 import uuid
 
+from src.schema import RunTrace
 from src.perception.qwen_scene_parser import QwenSceneParser
 from src.planning.task_planner import create_plan
 from src.execution.gridworld import execute_plan
 from src.validation.scene_validator import validate_scene
+from src.validation.plan_validator import validate_plan
 import time
 
 def main():
@@ -29,7 +31,6 @@ def main():
     scene_validation = validate_scene(scene)
     if not scene_validation.valid:
         print(scene_validation.errors)
-    return
 
     plan_validation = validate_plan(
         scene,
@@ -38,12 +39,11 @@ def main():
 
     if not plan_validation.valid:
         print(plan_validation.errors)
-    return
 
     trace = RunTrace(
         run_id=run_id,
         goal=goal,
-        model_name="Qwen2.5-VL-7B",
+        model_name="Qwen2.5-VL-3B",
         perception_latency_ms=perception_latency_ms,
         planning_latency_ms=planning_latency_ms,
         execution_latency_ms=execution_latency_ms,

@@ -5,7 +5,7 @@ from qwen_vl_utils import process_vision_info
 
 from src.schema import Scene
 
-MODEL_ID = "Qwen/Qwen2.5-VL-3B-Instruct""
+MODEL_ID = "Qwen/Qwen2.5-VL-3B-Instruct"
 
 class QwenSceneParser:
     def __init__(self):
@@ -18,29 +18,42 @@ class QwenSceneParser:
 
     def parse(self, image_path: str, goal: str) -> Scene:
         prompt = f"""
-You are the perception module for a simulated robot agent.
+        Return ONLY valid JSON.
 
-Given this image and robot goal:
+        Goal: {goal}
 
-Goal: {goal}
+        Find only these two objects:
+        1. red mug
+        2. tray
 
-Return ONLY valid JSON with this schema:
-{{
-  "grid_size": [6, 6],
-  "objects": [
-    {{
-      "name": "object name",
-      "type": "object type",
-      "location": [x, y],
-      "confidence": 0.0
-    }}
-  ],
-  "obstacles": [[x, y]]
-}}
+        Return this exact shape:
 
-Map visible object locations approximately onto a 6x6 grid.
-Include only task-relevant objects and major obstacles.
-"""
+        {{
+        "grid_size": [6, 6],
+        "objects": [
+            {{
+            "name": "red mug",
+            "type": "mug",
+            "location": [2, 3],
+            "confidence": 0.9
+            }},
+            {{
+            "name": "tray",
+            "type": "tray",
+            "location": [4, 2],
+            "confidence": 0.9
+            }}
+        ],
+        "obstacles": []
+        }}
+
+        Rules:
+        - Start with {{ and end with }}.
+        - Do not use markdown.
+        - Do not include fruits, utensils, bottles, or background objects.
+        - Use 6x6 grid coordinates only.
+        - x and y must be integers from 0 to 5.
+        """
 
         messages = [
             {
@@ -75,12 +88,17 @@ Include only task-relevant objects and major obstacles.
 
         generated_ids = self.model.generate(
             **inputs,
-            max_new_tokens=192,
+            max_new_tokens=256,
             do_sample=False,
         )
 
+        generated_ids_trimmed = [
+            output_ids[len(input_ids):]
+                for input_ids, output_ids in zip(inputs.input_ids, generated_ids)
+            ]
+        
         output_text = self.processor.batch_decode(
-            generated_ids,
+            generated_ids_trimmed,
             skip_special_tokens=True,
             clean_up_tokenization_spaces=False,
         )[0]
@@ -89,14 +107,46 @@ Include only task-relevant objects and major obstacles.
         print(output_text)
         print("===== END RAW MODEL OUTPUT =====\n")
 
-        json_start = output_text.find("{")
-        json_end = output_text.rfind("}") + 1
-        json_blob = output_text[json_start:json_end]
+        json_blob = extract_json(output_text)
 
         print("\n===== EXTRACTED JSON BLOB =====")
         print(json_blob)
         print("===== END JSON BLOB =====\n")
 
-        parsed = json.loads(output_text[json_start:json_end])
+        for obj in json_blob["objects"]:
+            obj["location"] = normalize_location(obj["location"])
 
-        return Scene.model_validate(parsed)
+        return Scene.model_validate(json_blob)
+
+def normalize_location(location: list[int]) -> list[int]:
+    if len(location) == 2:
+        x, y = location
+    elif len(location) == 4:
+        x1, y1, x2, y2 = location
+        x = (x1 + x2) // 2
+        y = (y1 + y2) // 2
+    else:
+        raise ValueError(f"Invalid location format: {location}")
+
+    if x > 5 or y > 5:
+        x = min(5, max(0, int(x / 448 * 6)))
+        y = min(5, max(0, int(y / 448 * 6)))
+
+    return [x, y]
+
+def extract_json(output_text: str) -> dict:
+    cleaned = output_text.strip()
+
+    cleaned = cleaned.replace("```json", "")
+    cleaned = cleaned.replace("```", "")
+    cleaned = cleaned.strip()
+
+    json_start = cleaned.find("{")
+    json_end = cleaned.rfind("}") + 1
+
+    if json_start == -1 or json_end <= json_start:
+        raise ValueError(f"No complete JSON object found:\n{output_text}")
+
+    json_blob = cleaned[json_start:json_end]
+
+    return json.loads(json_blob)

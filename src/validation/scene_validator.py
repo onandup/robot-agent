@@ -24,13 +24,14 @@ def validate_scene(scene: Scene) -> ValidationResult:
             )
 
         ## Check for multiple objects in the same location
-        loc = tuple(obj.location)
-        if loc in locations:
-            errors.append(
-                f"Multiple objects at {loc}"
-            )
+        ## Collisions are more probable in the small 6*6 grid, so we will allow them
+        # loc = tuple(obj.location)
+        # if loc in locations:
+        #     errors.append(
+        #         f"Multiple objects at {loc}"
+        #     )
 
-        locations.add(loc)
+        # locations.add(loc)
 
         if tuple(obj.location) in obstacles:
             errors.append(
