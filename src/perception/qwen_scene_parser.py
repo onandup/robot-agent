@@ -5,7 +5,7 @@ from qwen_vl_utils import process_vision_info
 
 from src.schema import Scene
 
-MODEL_ID = "Qwen/Qwen2.5-VL-7B-Instruct"
+MODEL_ID = "Qwen/Qwen2.5-VL-3B-Instruct""
 
 class QwenSceneParser:
     def __init__(self):
@@ -46,7 +46,12 @@ Include only task-relevant objects and major obstacles.
             {
                 "role": "user",
                 "content": [
-                    {"type": "image", "image": image_path},
+                    {
+                    "type": "image",
+                    "image": image_path,
+                    "resized_height": 448,
+                    "resized_width": 448,
+                    },
                     {"type": "text", "text": prompt},
                 ],
             }
@@ -68,7 +73,11 @@ Include only task-relevant objects and major obstacles.
             return_tensors="pt",
         ).to(self.model.device)
 
-        generated_ids = self.model.generate(**inputs, max_new_tokens=512)
+        generated_ids = self.model.generate(
+            **inputs,
+            max_new_tokens=192,
+            do_sample=False,
+        )
 
         output_text = self.processor.batch_decode(
             generated_ids,
